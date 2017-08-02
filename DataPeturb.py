@@ -2,21 +2,9 @@ import tensorflow as tf
 import numpy as np
 from IPython.display import YouTubeVideo
 import random
-
-
-video_lvl_record = "./video_data/traina0.tfrecord"
-frame_lvl_record = "./frame_data/traina0.tfrecord"
-data_gen_param = {'keep_ratio':0.9, 'gen_videos':2}        
-
 # now, let's read the frame-level data
 # due to execution time, we're only going to read the first video
 
-feat_rgb = []
-feat_audio = []
-vid_ids = []
-labels = []
-mean_rgb = []
-mean_audio = []
 
 
 def Dequantize(feat_vector, max_quantized_value=2, min_quantized_value=-2):
@@ -52,7 +40,6 @@ def frame_level_data_read(tf_seq_example):
         
     return rgb_frame, audio_frame
   
-  
 def peturb_frames(rgb_frame,audio_frame, data_gen_param):
     frame_len= np.shape(rgb_frame)[0]
     rgb_test = random.sample(rgb_frame, int(frame_len*data_gen_param['keep_ratio'])) 
@@ -71,7 +58,7 @@ def peturb_frames(rgb_frame,audio_frame, data_gen_param):
 
    
     
-def generate_examples(example):
+def generate_examples(example, data_gen_param = {'keep_ratio':0.9, 'gen_videos':2} ):
     tf_seq_example = tf.train.SequenceExample.FromString(example)
     vid_ids = []
     labels = []
