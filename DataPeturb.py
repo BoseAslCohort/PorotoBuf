@@ -40,8 +40,9 @@ def frame_level_data_read(tf_seq_example):
   
 def peturb_frames(rgb_frame,audio_frame, data_gen_param):
     frame_len= np.shape(rgb_frame)[0]
-    rgb_test = random.sample(rgb_frame, int(frame_len*data_gen_param['keep_ratio'])) 
-    audio_test = random.sample(audio_frame, int(frame_len*data_gen_param['keep_ratio'])) 
+    num_frames= np.ceil(frame_len*data_gen_param['keep_ratio']);
+    rgb_test = random.sample(rgb_frame, int(num_frames)) 
+    audio_test = random.sample(audio_frame, int(num_frames)) 
     temp=[]
     temp_audio=[]
     for item in range(len(rgb_test)):
@@ -49,6 +50,7 @@ def peturb_frames(rgb_frame,audio_frame, data_gen_param):
         temp_audio.append(Dequantize(audio_test[item], max_quantized_value=2, min_quantized_value=-2))
     video_features=np.mean(temp,axis = 0)
     video_audio_features=np.mean(temp_audio,axis = 0)
+
     return video_features,video_audio_features
 
 
