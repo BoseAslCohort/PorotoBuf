@@ -30,12 +30,10 @@ def frame_level_data_read(tf_seq_example):
     audio_frame = []
     # iterate through frames
     for i in range(n_frames):
-        rgb_frame.append(tf.cast(tf.decode_raw(
-                tf_seq_example.feature_lists.feature_list['rgb'].feature[i].bytes_list.value[0],tf.uint8)
-                       ,tf.float32).eval())
-        audio_frame.append(tf.cast(tf.decode_raw(
-                tf_seq_example.feature_lists.feature_list['audio'].feature[i].bytes_list.value[0],tf.uint8)
-                       ,tf.float32).eval())
+        rgb_frame.append(np.fromstring(
+                    tf_seq_example.feature_lists.feature_list['rgb'].feature[i].bytes_list.value[0],dtype=np.uint8).astype(float))
+        audio_frame.append(np.fromstring(
+                    tf_seq_example.feature_lists.feature_list['audio'].feature[i].bytes_list.value[0],dtype=np.uint8).astype(float))
         
         
     return rgb_frame, audio_frame
@@ -62,6 +60,8 @@ def generate_examples(example, data_gen_param = {'keep_ratio':0.9, 'gen_videos':
     tf_seq_example = tf.train.SequenceExample.FromString(example)
     vid_ids = []
     labels = []
+    import time
+    curr_time = time.time()
 
     labels = tf_seq_example.context.feature['labels'].int64_list
     vid_ids_orig = tf_seq_example.context.feature['video_id'].bytes_list.value[0]
@@ -81,11 +81,14 @@ def generate_examples(example, data_gen_param = {'keep_ratio':0.9, 'gen_videos':
            'labels':
                   tf.train.Feature(int64_list=labels),
            'video_id':
-                  tf.train.Feature(bytes_list=tf.train.BytesList(value=vid_ids)),
+                  tf.train.Feature(bytes_list=tf.train.BytesList(value=[vid_ids])),
            'mean_rgb':
                   tf.train.Feature(float_list=tf.train.FloatList(value=rgb_test.astype(float))),
            'mean_audio':
                   tf.train.Feature(float_list=tf.train.FloatList(value=audio_test.astype(float))),          
             })))
+   
+            
+    print((time.time()-curr_time), 'steps/sec')
     return example_list
       
